@@ -78,6 +78,31 @@ class _MyHomePageState extends State<MyHomePage> {
     startScan();
   }
 
+  void connect(BluetoothDevice dev) async {
+    log("Connecting with AutoConnect true");
+    await dev.connect(autoConnect: true);
+
+    await dev.connectionState
+        .where((val) => val == BluetoothConnectionState.connected)
+        .first;
+
+    var subscription =
+        dev.connectionState.listen((BluetoothConnectionState state) async {
+      if (state == BluetoothConnectionState.connected) {
+        log("We connect bitchhh");
+      }
+      if (state == BluetoothConnectionState.disconnected) {
+        // 1. typically, start a periodic timer that tries to
+        //    reconnect, or just call connect() again right now
+        // 2. you must always re-discover services after disconnection!
+        print(
+            "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
+      }
+    });
+
+    dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
+  }
+
   void startScan() async {
     log("Start scan");
     var subscription = FlutterBluePlus.onScanResults.listen(
@@ -86,6 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ScanResult r = results.last; // the most recently found device
           print(
               '${r.device.remoteId}: "${r.advertisementData.advName}" found!');
+
+          if (r.advertisementData.advName == "Zephyr Heartrate Sensor") {
+            log("Zeph identified! Attempting to connect...");
+            connect(r.device);
+          }
         }
       },
       onError: (e) => print(e),
