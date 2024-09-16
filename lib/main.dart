@@ -80,14 +80,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void connect(BluetoothDevice dev) async {
     log("Connecting with AutoConnect true");
-    await dev.connect(autoConnect: true, mtu:null);
+    await dev.connect(autoConnect: true, mtu: null);
 
     await dev.connectionState
         .where((val) => val == BluetoothConnectionState.connected)
         .first;
 
-    var subscription =
-        dev.connectionState.listen((BluetoothConnectionState state) async {
+    dev.connectionState.listen((BluetoothConnectionState state) async {
       if (state == BluetoothConnectionState.connected) {
         log("We connect bitchhh");
       }
@@ -95,12 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // 1. typically, start a periodic timer that tries to
         //    reconnect, or just call connect() again right now
         // 2. you must always re-discover services after disconnection!
-        print(
-            "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
+        log("${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
       }
     });
-
-    dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
   }
 
   void startScan() async {
