@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void connect(BluetoothDevice dev) async {
     log("Connecting with AutoConnect true");
-    await dev.connect(autoConnect: true);
+    await dev.connect(autoConnect: true, mtu:null);
 
     await dev.connectionState
         .where((val) => val == BluetoothConnectionState.connected)
@@ -108,12 +108,12 @@ class _MyHomePageState extends State<MyHomePage> {
     var subscription = FlutterBluePlus.onScanResults.listen(
       (results) {
         if (results.isNotEmpty) {
-          ScanResult r = results.last; // the most recently found device
+          ScanResult r = results.last; // the most recently found devices
           print(
               '${r.device.remoteId}: "${r.advertisementData.advName}" found!');
 
-          if (r.advertisementData.advName == "Zephyr Heartrate Sensor") {
-            log("Zeph identified! Attempting to connect...");
+          if (r.advertisementData.advName == "Jayden Dev") {
+            log("Zeph identified! Attempting to connectt...");
             connect(r.device);
           }
         }
