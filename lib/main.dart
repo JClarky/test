@@ -53,28 +53,50 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void connect(BluetoothDevice dev) async {
     log("Connecting with AutoConnect true");
-    await dev.connect(autoConnect: true, mtu: null);
+    await dev.connect();
+
+    var subscription =
+        dev.connectionState.listen((BluetoothConnectionState state) async {
+      if (state == BluetoothConnectionState.disconnected) {
+        // 1. typically, start a periodic timer that tries to
+        //    reconnect, or just call connect() again right now
+        // 2. you must always re-discover services after disconnection!
+        print(
+            "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
+      }
+    });
+
+    dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
 
     // Handle connection state changes
-    dev.connectionState.listen((BluetoothConnectionState state) {
+    dev.connectionState.listen((BluetoothConnectionState state) async {
       if (state == BluetoothConnectionState.connected) {
         log("Device connected!");
       } else if (state == BluetoothConnectionState.disconnected) {
         log("Device disconnected. Attempting to reconnect...");
-        reconnect(dev);
+        //reconnect(dev);
+        log("Reconnect automatically to the device!");
+        await dev.connect(autoConnect: true, mtu: null);
+        await dev.connectionState
+            .where((val) => val == BluetoothConnectionState.connected)
+            .first;
+        dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
       }
     });
   }
 
+/*
   void reconnect(BluetoothDevice dev) async {
     try {
+      log("Reconnect automatically to the device!");
       await dev.connect(autoConnect: true, mtu:null);
-      log("Reconnected to the device!");
+      await dev.connectionState.where((val) => val == BluetoothConnectionState.connected).first;
+      
     } catch (e) {
       log("Reconnection failed: $e");
     }
   }
-
+*/
   void startScan() async {
     log("Start initial scan");
     var subscription = FlutterBluePlus.onScanResults.listen(
