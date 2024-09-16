@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Bluetooth demo',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -31,10 +31,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 169, 18, 18)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Bluetooth connection test'),
     );
   }
 }
@@ -73,21 +73,34 @@ class _MyHomePageState extends State<MyHomePage> {
       log("Bluetooth supported");
     }
 
-    var subscription =
-        FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
-      print(state);
-      if (state == BluetoothAdapterState.on) {
-        // usually start scanning, connecting, etc
-        log('Time to scannn');
-      } else {
-        log("Bluetooth fucked");
-        // show an error to the user, etc
-      }
-    });
+    // listen to scan results
+// Note: `onScanResults` only returns live scan results, i.e. during scanning. Use
+//  `scanResults` if you want live scan results *or* the results from a previous scan.
+var subscription = FlutterBluePlus.onScanResults.listen((results) {
+        if (results.isNotEmpty) {
+            ScanResult r = results.last; // the most recently found device
+            print('${r.device.remoteId}: "${r.advertisementData.advName}" found!');
+        }
+    },
+    onError: (e) => print(e),
+);
 
-    if (Platform.isAndroid) {
-      FlutterBluePlus.turnOn();
-    }
+// cleanup: cancel subscription when scanning stops
+FlutterBluePlus.cancelWhenScanComplete(subscription);
+
+// Wait for Bluetooth enabled & permission granted
+// In your real app you should use `FlutterBluePlus.adapterState.listen` to handle all states
+FlutterBluePlus.adapterState.where((val) => val == BluetoothAdapterState.on).first;
+
+// Start scanning w/ timeout
+// Optional: use `stopScan()` as an alternative to timeout
+FlutterBluePlus.startScan(
+  withServices:[Guid("180D")], // match any of the specified services
+  withNames:["Bluno"], // *or* any of the specified names
+  timeout: Duration(seconds:15));
+
+// wait for scanning to stop
+FlutterBluePlus.isScanning.where((val) => val == false).first;
 
 // cancel to prevent duplicate listeners
     subscription.cancel();
