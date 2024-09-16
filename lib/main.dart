@@ -119,6 +119,11 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+
+    List<BluetoothDevice> devs = FlutterBluePlus.connectedDevices;
+    for (var d in devs) {
+      print(d);
+    }
   }
 
   @override
