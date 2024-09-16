@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:developer';
-import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -69,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void reconnect(BluetoothDevice dev) async {
     try {
-      await dev.connect(autoConnect: true);
+      await dev.connect(autoConnect: true, mtu:null);
       log("Reconnected to the device!");
     } catch (e) {
       log("Reconnection failed: $e");
