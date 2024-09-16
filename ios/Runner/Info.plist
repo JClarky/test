@@ -50,6 +50,13 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
+  <key>UIBackgroundModes</key>
+  <array>
+      <string>bluetooth-central</string>
+      <string>bluetooth-peripheral</string>
+  </array>
+  <key>NSBluetoothAlwaysUsageDescription</key>
+  <string>We need Bluetooth access to connect to your device even when the app is in the background.</string>
 	<true/>
 </dict>
 </plist>
