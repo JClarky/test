@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    log("Init home page");
+    log("Init home pagee");
 
     if (FlutterBluePlus.isSupported == false) {
       log("Bluetooth not supported RIPP");
