@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:developer';
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
@@ -65,6 +67,18 @@ class _MyHomePageState extends State<MyHomePage> {
     startScan();
   }
 
+  // ···
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('remoteID.txt');
+  }
+
   void connect(BluetoothDevice dev) async {
     log("Connecting");
     await dev.connect();
@@ -78,6 +92,11 @@ class _MyHomePageState extends State<MyHomePage> {
             "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
       }
     });
+
+    final file = await _localFile;
+
+    // Write the file
+    file.writeAsString('$dev.remoteId');
 
     //dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
   }
@@ -95,6 +114,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 */
   void startScan() async {
+    try {
+      final String remoteId = await File('/remoteId.txt').readAsString();
+      log("ID FOUND:$remoteId");
+      var device = BluetoothDevice.fromId(remoteId);
+      await device.connect(autoConnect: true);
+      return;
+    } catch (e) {
+      log("ID failure");
+    }
+
     log("Start initial scan");
     var subscription = FlutterBluePlus.onScanResults.listen(
       (results) {
@@ -130,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _incrementCounter() {
+    log("Increment counter");
     setState(() {
       _counter++;
     });
