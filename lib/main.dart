@@ -3,6 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:developer';
 
 void main() {
+  FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
   runApp(const MyApp());
 }
 
@@ -124,7 +125,6 @@ class _MyHomePageState extends State<MyHomePage> {
     for (var d in devs) {
       print(d);
     }
-  
   }
 
   @override
