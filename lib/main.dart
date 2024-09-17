@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       final result = await platform.invokeMethod<int>('btInit');
       log("Got");
-    } on PlatformException catch (e) {
+    } on PlatformException {
       log("Failure");
     }
   }
@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    return File('remoteID.txt');
+    return File('$path/remoteId.txt');
   }
 
   void connect(BluetoothDevice dev) async {
@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final file = await _localFile;
 
     // Write the file
-    file.writeAsString('$dev.remoteId');
+    file.writeAsString(dev.remoteId.toString());
 
     //dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
   }
@@ -115,13 +115,24 @@ class _MyHomePageState extends State<MyHomePage> {
 */
   void startScan() async {
     try {
-      final String remoteId = await File('/remoteId.txt').readAsString();
+      final file = await _localFile;
+
+      final String remoteId = await file.readAsString();
       log("ID FOUND:$remoteId");
-      var device = BluetoothDevice.fromId(remoteId);
-      await device.connect(autoConnect: true);
+      var dev = BluetoothDevice.fromId(remoteId);
+      log("Got device from ID");
+      await dev.connect(autoConnect: true, mtu:null);
+      dev.connectionState.listen((BluetoothConnectionState state) async {
+      if (state == BluetoothConnectionState.disconnected) {
+        log("Disconnect occured, setting autoconnect here");
+        await dev.connect(autoConnect: true, mtu: null);
+        print(
+            "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
+      }
+    });
       return;
     } catch (e) {
-      log("ID failure");
+      log("ID failure $e");
     }
 
     log("Start initial scan");
@@ -131,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ScanResult r = results.last; // the most recently found devices
           log('${r.device.remoteId}: "${r.advertisementData.advName}" found!');
 
-          if (r.advertisementData.advName == "Jayden Dev") {
+          if (r.advertisementData.advName == "Zephyr Heartrate Sensor") {
             log("Device identified! Attempting to connect...");
             connect(r.device);
           }
