@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:developer';
+import 'dart:async';
+import 'package:flutter/services.dart';
 
 void main() {
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
@@ -35,6 +37,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  static const platform = MethodChannel('samples.flutter.dev/bt');
+
+  Future<void> _setConnection() async {
+    try {
+      final result = await platform.invokeMethod<int>('btInit');
+      log("Got");
+    } on PlatformException catch (e) {
+      log("Failure");
+    }
+  }
 
   @override
   void initState() {
@@ -120,6 +133,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+
+    _setConnection();
 
     List<BluetoothDevice> devs = FlutterBluePlus.connectedDevices;
     for (var d in devs) {
