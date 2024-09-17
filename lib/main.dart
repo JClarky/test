@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await FlutterBluePlus.startScan(
         withServices: [Guid("180D")], // match any of the specified services
         withNames: ["Jayden Dev"], // match specified names
-        timeout: Duration(seconds: 15));
+        timeout: const Duration(seconds: 15));
 
     // Wait for scanning to stop
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
