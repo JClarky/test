@@ -39,8 +39,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  List<BluetoothDevice> _devices = [];
 
-  static const platform = MethodChannel('samples.flutter.dev/bt');
+  /*static const platform = MethodChannel('samples.flutter.dev/bt');
 
   Future<void> _setConnection() async {
     try {
@@ -49,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } on PlatformException {
       log("Failure");
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -121,15 +122,15 @@ class _MyHomePageState extends State<MyHomePage> {
       log("ID FOUND:$remoteId");
       var dev = BluetoothDevice.fromId(remoteId);
       log("Got device from ID");
-      await dev.connect(autoConnect: true, mtu:null);
+      await dev.connect(autoConnect: true, mtu: null);
       dev.connectionState.listen((BluetoothConnectionState state) async {
-      if (state == BluetoothConnectionState.disconnected) {
-        log("Disconnect occured, setting autoconnect here");
-        await dev.connect(autoConnect: true, mtu: null);
-        print(
-            "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
-      }
-    });
+        if (state == BluetoothConnectionState.disconnected) {
+          log("Disconnect occured, setting autoconnect here");
+          await dev.connect(autoConnect: true, mtu: null);
+          print(
+              "${dev.disconnectReason?.code} ${dev.disconnectReason?.description}");
+        }
+      });
       return;
     } catch (e) {
       log("ID failure $e");
@@ -169,18 +170,32 @@ class _MyHomePageState extends State<MyHomePage> {
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
   }
 
+  void _disconnect() async {
+    log("Disconnecting all devices and clearing remote id's");
+    List<BluetoothDevice> devices = FlutterBluePlus.connectedDevices;
+    for (var dev in devices) {
+      dev.disconnect();
+    }
+
+    final file = await _localFile;
+    file.writeAsStringSync("");
+  }
+
   void _incrementCounter() {
     log("Increment counter");
     setState(() {
       _counter++;
     });
 
-    _setConnection();
+    //_setConnection();
 
     List<BluetoothDevice> devs = FlutterBluePlus.connectedDevices;
     for (var d in devs) {
       print(d);
     }
+    setState(() {
+      _devices = devs;
+    });
   }
 
   @override
@@ -194,20 +209,37 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            const Text('You have pushed the refresh button this many times:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            const SizedBox(height: 20),
+            const Text('Connected Bluetooth Devices:'),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _devices.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_devices[index].name),
+                    subtitle: Text(_devices[index].id.toString()),
+                  );
+                },
+              ),
+            ),
+            ElevatedButton(
+                onPressed: startScan, child: const Text('Rescan for device')),
+            ElevatedButton(
+              onPressed: _disconnect,
+              child: const Text('Disconnect All Devices'),
+            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.cached_outlined),
       ),
     );
   }
