@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 void main() {
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
+  FlutterBluePlus.setOptions(restoreState: true);
   runApp(const MyApp());
 }
 
