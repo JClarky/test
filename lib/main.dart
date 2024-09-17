@@ -172,13 +172,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _disconnect() async {
     log("Disconnecting all devices and clearing remote id's");
+    final file = await _localFile;
+    file.writeAsStringSync("");
     List<BluetoothDevice> devices = FlutterBluePlus.connectedDevices;
     for (var dev in devices) {
       dev.disconnect();
     }
 
-    final file = await _localFile;
-    file.writeAsStringSync("");
+    
   }
 
   void _incrementCounter() {
