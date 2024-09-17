@@ -10,6 +10,7 @@ void main() {
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
   FlutterBluePlus.setOptions(restoreState: true);
   runApp(const MyApp());
+  //test
 }
 
 class MyApp extends StatelessWidget {
@@ -179,8 +180,6 @@ class _MyHomePageState extends State<MyHomePage> {
     for (var dev in devices) {
       dev.disconnect();
     }
-
-    
   }
 
   void _incrementCounter() {
