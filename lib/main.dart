@@ -185,7 +185,6 @@ class _MyHomePageState extends State<MyHomePage> {
         print("fail write");
         print(e);
       }
-      
     }
   }
 
@@ -210,7 +209,9 @@ class _MyHomePageState extends State<MyHomePage> {
     //dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
     // Note: You must call discoverServices after every re-connection!
     List<BluetoothService> services = await dev.discoverServices();
-    services.forEach((service) {
+    attemptBonding(dev);
+
+    /*services.forEach((service) {
       log("Service:");
       print(service.characteristics);
 
@@ -218,7 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
       for (BluetoothCharacteristic c in characteristics) {
         printChar(c);
       }
-    });
+    });*/
   }
 
 /*
