@@ -3,7 +3,6 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:developer';
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:device_info/device_info.dart';
 import 'package:collection/collection.dart';
@@ -218,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var characteristics = service.characteristics;
       for (BluetoothCharacteristic c in characteristics) {
         printChar(c);
-      }
+      }https://prod.liveshare.vsengsaas.visualstudio.com/join?66CC9E704D99EC093D194A5A8603A3BF12E4
     });*/
   }
 
