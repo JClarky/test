@@ -196,8 +196,20 @@ class _MyHomePageState extends State<MyHomePage> {
     // Note: You must call discoverServices after every re-connection!
     List<BluetoothService> services = await dev.discoverServices();
     services.forEach((service) {
+      log("Service:");
       print(service.characteristics);
+
+      var characteristics = service.characteristics;
+      for(BluetoothCharacteristic c in characteristics) {
+          if (c.properties.read) {
+              List<int> value = await c.read();
+              log("Char:");
+              print(value);
+          }
+      }
     });
+
+    
   }
 
 /*
