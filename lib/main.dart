@@ -210,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Note: You must call discoverServices after every re-connection!
     List<BluetoothService> services = await dev.discoverServices();
     attemptBonding(dev);
-
+  https://prod.liveshare.vsengsaas.visualstudio.com/join?EE46D6AB2AB611C7EF0E8DE8FE7EF86757C4
     /*services.forEach((service) {
       log("Service:");
       print(service.characteristics);
