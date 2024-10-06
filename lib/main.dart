@@ -156,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   if (bondingStatusCharacteristic != null) {
     try {
-      await Future.delayed(Duration(seconds: 1)); // add a delay to ensure the bonding is processed
+      await Future.delayed(const Duration(seconds: 1)); // add a delay to ensure the bonding is processed
       List<int> bondingStatus = await bondingStatusCharacteristic.read();
       print('Bonding status value: $bondingStatus');
       if (bondingStatus.isNotEmpty && bondingStatus[0] == 1) {
@@ -191,6 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Write the file
     file.writeAsString(dev.remoteId.toString());
     //dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
+    
   }
 
 /*
