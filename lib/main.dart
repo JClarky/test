@@ -85,92 +85,94 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> attemptBonding(BluetoothDevice device) async {
-  // get the device UUID
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  String deviceUUID;
+    // get the device UUID
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    String deviceUUID;
 
-  try {
-    if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      deviceUUID = androidInfo.id;
-    } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      deviceUUID = iosInfo.identifierForVendor ?? '';
-    } else {
-      print('Unsupported platform');
-      return;
-    }
-  } catch (e) {
-    print('Error getting device UUID: $e');
-    return;
-  }
-
-  // convert the UUID to a byte array
-  List<int> uuidBytes = deviceUUID.codeUnits;
-
-  // function to match the UUID ignoring the first four characters (device name)
-  bool matchUUID(String characteristicUUID, String targetUUID) {
-    return characteristicUUID.substring(4).toLowerCase() == targetUUID.substring(4).toLowerCase();
-  }
-
-  // discover services and characteristics
-  List<BluetoothService> services;
-  try {
-    services = await device.discoverServices();
-  } catch (e) {
-    print('Error discovering services: $e');
-    return;
-  }
-
-  // find the bonding characteristic
-  BluetoothCharacteristic? bondingCharacteristic;
-  for (var service in services) {
-    bondingCharacteristic = service.characteristics.firstWhereOrNull(
-      (c) => matchUUID(c.uuid.toString(), 'UUID of your device that returns bonding characteristic')
-    );
-    if (bondingCharacteristic != null) break;
-  }
-
-  if (bondingCharacteristic != null) {
     try {
-      print('Attempting to write to bonding characteristic...');
-      await bondingCharacteristic.write(uuidBytes, withoutResponse: true);
-      print('Written UUID to bonding characteristic.');
-    } catch (e) {
-      print('Error writing to bonding characteristic: $e');
-      return;
-    }
-  } else {
-    print('Bonding characteristic not found');
-    return;
-  }
-
-  // check bonding status
-  BluetoothCharacteristic? bondingStatusCharacteristic;
-  for (var service in services) {
-    bondingStatusCharacteristic = service.characteristics.firstWhereOrNull(
-      (c) => matchUUID(c.uuid.toString(), 'UUID of your device that returns bonding status characteristic')
-    );
-    if (bondingStatusCharacteristic != null) break;
-  }
-
-  if (bondingStatusCharacteristic != null) {
-    try {
-      await Future.delayed(const Duration(seconds: 1)); // add a delay to ensure the bonding is processed
-      List<int> bondingStatus = await bondingStatusCharacteristic.read();
-      print('Bonding status value: $bondingStatus');
-      if (bondingStatus.isNotEmpty && bondingStatus[0] == 1) {
-        print('Bonding successful.');
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceUUID = androidInfo.id;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceUUID = iosInfo.identifierForVendor ?? '';
       } else {
-        print('Bonding failed or not recognized by the device.');
+        print('Unsupported platform');
+        return;
       }
     } catch (e) {
-      print('Error reading bonding status: $e');
+      print('Error getting device UUID: $e');
+      return;
     }
-  } else {
-    print('Bonding status characteristic not found');
+
+    // convert the UUID to a byte array
+    List<int> uuidBytes = deviceUUID.codeUnits;
+
+    // function to match the UUID ignoring the first four characters (device name)
+    bool matchUUID(String characteristicUUID, String targetUUID) {
+      return characteristicUUID.substring(4).toLowerCase() ==
+          targetUUID.substring(4).toLowerCase();
+    }
+
+    // discover services and characteristics
+    List<BluetoothService> services;
+    try {
+      services = await device.discoverServices();
+    } catch (e) {
+      print('Error discovering services: $e');
+      return;
+    }
+
+    // find the bonding characteristic
+    BluetoothCharacteristic? bondingCharacteristic;
+    for (var service in services) {
+      bondingCharacteristic = service.characteristics.firstWhereOrNull((c) =>
+          matchUUID(c.uuid.toString(),
+              'UUID of your device that returns bonding characteristic'));
+      if (bondingCharacteristic != null) break;
+    }
+
+    if (bondingCharacteristic != null) {
+      try {
+        print('Attempting to write to bonding characteristic...');
+        await bondingCharacteristic.write(uuidBytes, withoutResponse: true);
+        print('Written UUID to bonding characteristic.');
+      } catch (e) {
+        print('Error writing to bonding characteristic: $e');
+        return;
+      }
+    } else {
+      print('Bonding characteristic not found');
+      return;
+    }
+
+    // check bonding status
+    BluetoothCharacteristic? bondingStatusCharacteristic;
+    for (var service in services) {
+      bondingStatusCharacteristic = service.characteristics.firstWhereOrNull(
+          (c) => matchUUID(c.uuid.toString(),
+              'UUID of your device that returns bonding status characteristic'));
+      if (bondingStatusCharacteristic != null) break;
+    }
+
+    if (bondingStatusCharacteristic != null) {
+      try {
+        await Future.delayed(const Duration(
+            seconds: 1)); // add a delay to ensure the bonding is processed
+        List<int> bondingStatus = await bondingStatusCharacteristic.read();
+        print('Bonding status value: $bondingStatus');
+        if (bondingStatus.isNotEmpty && bondingStatus[0] == 1) {
+          print('Bonding successful.');
+        } else {
+          print('Bonding failed or not recognized by the device.');
+        }
+      } catch (e) {
+        print('Error reading bonding status: $e');
+      }
+    } else {
+      print('Bonding status characteristic not found');
+    }
   }
-}
 
   void connect(BluetoothDevice dev) async {
     log("Connecting");
@@ -191,7 +193,11 @@ class _MyHomePageState extends State<MyHomePage> {
     // Write the file
     file.writeAsString(dev.remoteId.toString());
     //dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
-    
+    // Note: You must call discoverServices after every re-connection!
+    List<BluetoothService> services = await dev.discoverServices();
+    services.forEach((service) {
+      print(service.characteristics);
+    });
   }
 
 /*
