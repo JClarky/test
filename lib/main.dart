@@ -174,6 +174,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void printChar(BluetoothCharacteristic c) async {
+    if (c.properties.read) {
+      List<int> value = await c.read();
+      log("Char:");
+      print(value);
+    }
+  }
+
   void connect(BluetoothDevice dev) async {
     log("Connecting");
     await dev.connect();
@@ -200,16 +208,10 @@ class _MyHomePageState extends State<MyHomePage> {
       print(service.characteristics);
 
       var characteristics = service.characteristics;
-      for(BluetoothCharacteristic c in characteristics) {
-          if (c.properties.read) {
-              List<int> value = await c.read();
-              log("Char:");
-              print(value);
-          }
+      for (BluetoothCharacteristic c in characteristics) {
+        printChar(c);
       }
     });
-
-    
   }
 
 /*
