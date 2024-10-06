@@ -39,6 +39,7 @@ dependencies:
   flutter_blue_plus:
     path: ./packages/flutter_blue_plus
   path_provider: ^2.1.4
+  device_info: ^2.0.3
 
 dev_dependencies:
   flutter_test:
