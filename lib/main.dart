@@ -177,8 +177,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void printChar(BluetoothCharacteristic c) async {
     if (c.properties.read) {
       List<int> value = await c.read();
-      log("Char:");
+      print("Char:");
       print(value);
+      try {
+        await c.write([0]);
+      } catch (e) {
+        print("fail write");
+        print(e);
+      }
+      
     }
   }
 
