@@ -207,17 +207,23 @@ class _MyHomePageState extends State<MyHomePage> {
     file.writeAsString(dev.remoteId.toString());
     //dev.cancelWhenDisconnected(subscription, delayed: true, next: true);
     // Note: You must call discoverServices after every re-connection!
-    List<BluetoothService> services = await dev.discoverServices();
-    attemptBonding(dev);
-  https://prod.liveshare.vsengsaas.visualstudio.com/join?EE46D6AB2AB611C7EF0E8DE8FE7EF86757C4
-    /*services.forEach((service) {
-      log("Service:");
+    /*List<BluetoothService> services = await dev.discoverServices();
+    //attemptBonding(dev);
+    services.forEach((service) {
+      print("Service:");
       print(service.characteristics);
 
       var characteristics = service.characteristics;
       for (BluetoothCharacteristic c in characteristics) {
-        printChar(c);
-      }https://prod.liveshare.vsengsaas.visualstudio.com/join?66CC9E704D99EC093D194A5A8603A3BF12E4
+        print(c.characteristicUuid);
+        print(c.properties);
+
+        if (c.characteristicUuid.str == "00001525-1212-efde-1523-785feabcd123") {
+          print("Attempting write here");
+          //c.write([0]);
+        }
+        //printChar(c);
+      }
     });*/
   }
 
